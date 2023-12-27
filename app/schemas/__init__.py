@@ -1,0 +1,20 @@
+from .finance import (
+    WalletsResponse,
+    WalletResponse,
+    WalletTopOffRequest,
+    WalletTransactionRequestByBusinessID,
+    WalletTransactionRequestByUserID,
+    WalletTransactionsResponse,
+    WalletTransactionResponse,
+    IPGRequest,
+    IPGUpdateRequest,
+    IPGFilter,
+    IPGsResponse,
+    IPGResponse,
+    IPGTransactionsResponse,
+    IPGTransactionResponse,
+    IPGTransactionFilter,
+    WalletTopOffResponse,
+    WalletUpdate,
+    WalletTransactionFilter
+)
