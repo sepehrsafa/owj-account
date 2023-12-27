@@ -32,7 +32,6 @@ jwt==1.3.1
 MarkupSafe==2.1.3
 multidict==6.0.4
 orjson==3.9.7
-owjcommon==0.1.0
 pyasn1==0.5.0
 pycparser==2.21
 pydantic==2.4.2
@@ -62,3 +61,4 @@ uvicorn==0.23.2
 watchfiles==0.20.0
 websockets==11.0.3
 yarl==1.9.2
+git+https://github.com/sepehrsafa/owjcommon

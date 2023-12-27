@@ -34,6 +34,7 @@ class WalletTransaction(AuditableModel):
 
     class Meta:
         table = "wallet_transactions"
+        ordering = ["-created_at"]
 
 
 class IPG(AuditableModel):
@@ -71,4 +72,8 @@ class IPGTransaction(AuditableModel):
     trace_number = fields.CharField(max_length=100, null=True)
     token = fields.CharField(max_length=100, null=True)
     audit_log_class = AuditLog
+
+    class Meta:
+        table = "ipg_transactions"
+        ordering = ["-created_at"]
 
