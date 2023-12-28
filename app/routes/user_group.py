@@ -196,7 +196,7 @@ async def add_user_to_group(
     return {"data": group}
 
 
-@router.delete("/{group_id}/remove", response_model=GroupResponse, responses=responses)
+@router.delete("/{id}/remove", response_model=GroupResponse, responses=responses)
 async def remove_user_from_group(
     id: int,
     data: AddUserToGroupRequest,
