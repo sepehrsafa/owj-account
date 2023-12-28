@@ -173,7 +173,7 @@ async def delete_group(
 
 @router.post("/{id}/add", response_model=GroupResponse, responses=responses)
 async def add_user_to_group(
-    group_id: int,
+    id: int,
     data: AddUserToGroupRequest,
     current_user: Annotated = Security(
         get_current_active_user, scopes=[UserPermission.USER_GROUP_ADD_USER]
@@ -186,7 +186,7 @@ async def add_user_to_group(
     - **Scope**: USER_GROUP:ADD_USER
     """
     group: UserGroup = await UserGroup.get_or_exception(
-        id=group_id, prefetch_related=["users"]
+        id=id, prefetch_related=["users"]
     )
 
     await group.add_users(data.user_ids)
@@ -196,9 +196,9 @@ async def add_user_to_group(
     return {"data": group}
 
 
-@router.delete("/{id}/remove", response_model=GroupResponse, responses=responses)
+@router.delete("/{group_id}/remove", response_model=GroupResponse, responses=responses)
 async def remove_user_from_group(
-    group_id: int,
+    id: int,
     data: AddUserToGroupRequest,
     current_user: Annotated = Security(
         get_current_active_user, scopes=[UserPermission.USER_GROUP_READ]
@@ -211,7 +211,7 @@ async def remove_user_from_group(
     - **Scope**: USER_GROUP:ADD_USER
     """
     group: UserGroup = await UserGroup.get_or_exception(
-        id=group_id, prefetch_related=["users"]
+        id=id, prefetch_related=["users"]
     )
 
     await group.remove_users(data.user_ids)
