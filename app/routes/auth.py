@@ -23,13 +23,7 @@ from app.services.auth import validate_refresh_token
 from app.services.wallet import create_wallets
 
 
-def custom_generate_unique_id(route):
-    return f"{route.tags[0]}-{route.name}"
-
-
-router = APIRouter(
-    tags=["Authentication"], generate_unique_id_function=custom_generate_unique_id
-)
+router = APIRouter(tags=["Authentication"])
 
 
 # Internal function to handle password login logic
@@ -102,7 +96,6 @@ async def password_login(data: UsernamePasswordLoginRequest):
     "/otp",
     response_model=OTPResponse,
     responses=responses,
-    name="Get TOTP. Will create user if does not exist",
 )
 async def get_totp(login_data: OTPRequest):
     """
@@ -130,9 +123,7 @@ async def get_totp(login_data: OTPRequest):
 
 
 # Endpoint to verify the TOTP for a user
-@router.post(
-    "/otp/verify", response_model=TokenResponse, responses=responses, name="Verify OTP"
-)
+@router.post("/otp/verify", response_model=TokenResponse, responses=responses)
 async def totp_login(login_data: OTPLoginRequest):
     """
     Verify the Time-based One-Time Password (TOTP) for a user.
