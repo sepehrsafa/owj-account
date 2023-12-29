@@ -30,13 +30,13 @@ def custom_generate_unique_id(route):
 
 
 app = FastAPI(
-    title="OWJ CRS Account API",
+    title="OWJ CRS Account Microservice",
     description="This is the API documentation for the OWJ CRS Account Service.",
     version="1.0.0",
     generate_unique_id_function=custom_generate_unique_id,
     servers=[
-        {"url": "http://localhost:8000", "description": "Local environment"},
         {"url": "https://account.owj.app", "description": "Production environment"},
+        {"url": "http://localhost:8000", "description": "Local environment"},
     ],
 )
 
