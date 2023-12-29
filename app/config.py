@@ -7,6 +7,7 @@ class TortoiseORMSettings(BaseSettings):
     db_connection: str = "sqlite://db.sqlite3"
     apps_models_models: str = "app.models"
     apps_models_default_connection: str = "default"
+    
 
 
 class JWTSettings(BaseSettings):
