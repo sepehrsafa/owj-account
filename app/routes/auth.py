@@ -22,7 +22,14 @@ from owjcommon.response import responses
 from app.services.auth import validate_refresh_token
 from app.services.wallet import create_wallets
 
-router = APIRouter(tags=["Authentication"])
+
+def custom_generate_unique_id(route):
+    return f"{route.tags[0]}-{route.name}"
+
+
+router = APIRouter(
+    tags=["Authentication"], generate_unique_id_function=custom_generate_unique_id
+)
 
 
 # Internal function to handle password login logic
