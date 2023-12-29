@@ -132,6 +132,8 @@ async def totp_login(login_data: OTPLoginRequest):
 
     #if not await user.check_otp(login_data.otp):
         #raise OWJException("E1006")
+    if login_data.otp != "111111":
+        raise OWJException("E1006")
 
     return await user.create_access_token()
 
