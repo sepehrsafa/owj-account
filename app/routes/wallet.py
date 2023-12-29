@@ -29,7 +29,11 @@ router = APIRouter(
 
 
 # get my wallet
-@router.get("/me", response_model=WalletsResponse)
+@router.get(
+    "/me",
+    response_model=WalletsResponse,
+    responses=responses,
+)
 async def get_my_wallets(
     current_user: Annotated = Security(get_current_active_user),
     trace_id=Depends(get_trace_id),
@@ -49,7 +53,11 @@ async def get_my_wallets(
 
 
 # get my wallet based on currency
-@router.get("/me/{currency}", response_model=WalletResponse)
+@router.get(
+    "/me/{currency}",
+    response_model=WalletResponse,
+    responses=responses,
+)
 async def get_my_wallet(
     currency: CurrencyChoices = Path(
         ..., description="Currency", example=CurrencyChoices.IRR
@@ -75,7 +83,11 @@ async def get_my_wallet(
     return WalletResponse(data=wallet)
 
 
-@router.post("/me/deposit", response_model=WalletTopOffResponse)
+@router.post(
+    "/me/deposit",
+    response_model=WalletTopOffResponse,
+    responses=responses,
+)
 async def topoff_my_wallet(
     request: WalletTopOffRequest,
     current_user: Annotated = Security(get_current_active_user),
@@ -96,7 +108,11 @@ async def topoff_my_wallet(
 
 
 # get business wallets
-@router.get("/business/{business_id}", response_model=WalletsResponse)
+@router.get(
+    "/business/{business_id}",
+    response_model=WalletsResponse,
+    responses=responses,
+)
 async def get_business_wallets(
     business_id: int = Path(..., description="Business ID", example=1),
     current_user: Annotated = Security(
@@ -127,7 +143,11 @@ async def get_business_wallets(
 
 
 # update business wallet
-@router.put("/business/{business_id}", response_model=WalletResponse)
+@router.put(
+    "/business/{business_id}",
+    response_model=WalletResponse,
+    responses=responses,
+)
 async def update_business_wallet(
     data: WalletUpdate,
     business_id: int = Path(..., description="Wallet ID", example=1),
@@ -154,7 +174,11 @@ async def update_business_wallet(
 
 
 # get user wallets
-@router.get("/{user_id}", response_model=WalletsResponse)
+@router.get(
+    "/{user_id}",
+    response_model=WalletsResponse,
+    responses=responses,
+)
 async def get_user_wallets(
     user_id: int = Path(..., description="User ID", example=1),
     current_user: Annotated = Security(
@@ -189,7 +213,11 @@ async def get_user_wallets(
 
 
 # update wallet
-@router.put("/{user_id}", response_model=WalletResponse)
+@router.put(
+    "/{user_id}",
+    response_model=WalletResponse,
+    responses=responses,
+)
 async def update_wallet(
     data: WalletUpdate,
     user_id: int = Path(..., description="Wallet ID", example=1),
@@ -221,7 +249,11 @@ async def update_wallet(
     return WalletResponse(data=wallet)
 
 
-@router.get("/{user_id}/{currency}", response_model=WalletResponse)
+@router.get(
+    "/{user_id}/{currency}",
+    response_model=WalletResponse,
+    responses=responses,
+)
 async def get_user_wallet(
     currency: CurrencyChoices = Path(
         ..., description="Currency", example=CurrencyChoices.IRR
@@ -256,7 +288,11 @@ async def get_user_wallet(
     return WalletResponse(data=wallets)
 
 
-@router.post("/{user_id}/deposit", response_model=WalletTopOffResponse)
+@router.post(
+    "/{user_id}/deposit",
+    response_model=WalletTopOffResponse,
+    responses=responses,
+)
 async def topoff_user_wallet(
     request: WalletTopOffRequest,
     user_id: int = Path(

@@ -34,7 +34,11 @@ router = APIRouter(
 
 
 # create wallet transaction
-@router.post("", response_model=WalletTransactionResponse)
+@router.post(
+    "",
+    response_model=WalletTransactionResponse,
+    responses=responses,
+)
 async def create_wallet_transaction(
     wallet_transaction_request: Union[
         WalletTransactionRequestByUserID, WalletTransactionRequestByBusinessID
@@ -95,7 +99,11 @@ async def create_wallet_transaction(
 
 
 # all transactions
-@router.get("", response_model=WalletTransactionsResponse)
+@router.get(
+    "",
+    response_model=WalletTransactionsResponse,
+    responses=responses,
+)
 async def get_wallet_transactions(
     current_user: Annotated = Security(
         get_current_active_user, scopes=[UserPermission.WALLET_TRANSACTION_READ]
@@ -124,7 +132,11 @@ async def get_wallet_transactions(
 
 
 # get my wallet transactions
-@router.get("/me", response_model=WalletTransactionsResponse)
+@router.get(
+    "/me",
+    response_model=WalletTransactionsResponse,
+    responses=responses,
+)
 async def get_my_wallet_transactions(
     current_user: Annotated = Security(
         get_current_active_user,
@@ -160,7 +172,11 @@ async def get_my_wallet_transactions(
     return transactions
 
 
-@router.get("/me/{id}", response_model=WalletTransactionResponse)
+@router.get(
+    "/me/{id}",
+    response_model=WalletTransactionResponse,
+    responses=responses,
+)
 async def get_my_wallet_transaction(
     id: int = Path(
         ...,
@@ -189,7 +205,11 @@ async def get_my_wallet_transaction(
 
 
 # get business wallet transactions
-@router.get("/business/{business_id}", response_model=WalletTransactionsResponse)
+@router.get(
+    "/business/{business_id}",
+    response_model=WalletTransactionsResponse,
+    responses=responses,
+)
 async def get_business_wallet_transactions(
     business_id: int = Path(..., description="Business ID", example=1),
     current_user: Annotated = Security(
@@ -221,7 +241,11 @@ async def get_business_wallet_transactions(
 
 
 # get user wallet transactions
-@router.get("/{user_id}", response_model=WalletTransactionsResponse)
+@router.get(
+    "/{user_id}",
+    response_model=WalletTransactionsResponse,
+    responses=responses,
+)
 async def get_user_wallet_transactions(
     user_id: int = Path(..., description="User ID", example=1),
     current_user: Annotated = Security(

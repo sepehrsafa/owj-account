@@ -102,7 +102,7 @@ async def nextpay_callback(
 
 
 # get all ipg transactions
-@router.get("/transactions", response_model=IPGTransactionsResponse)
+@router.get("/transactions", response_model=IPGTransactionsResponse, responses=responses)
 async def list_all_ipgs_transactions(
     trace_id=Depends(get_trace_id),
     pagination=Depends(pagination),
@@ -122,7 +122,7 @@ async def list_all_ipgs_transactions(
     return transactions
 
 
-@router.get("/transactions/{id}", response_model=IPGTransactionResponse)
+@router.get("/transactions/{id}", response_model=IPGTransactionResponse, responses=responses)
 async def get_ipg_transaction(
     id: int = Path(
         ...,
@@ -141,7 +141,7 @@ async def get_ipg_transaction(
 
 
 # create ipg create, update, delete, list, get
-@router.post("", response_model=IPGResponse)
+@router.post("", response_model=IPGResponse, responses=responses)
 async def create_ipg(
     ipg: IPGRequest,
     current_user: Annotated = Security(
@@ -159,7 +159,7 @@ async def create_ipg(
 
 
 # list ipgs
-@router.get("", response_model=IPGsResponse)
+@router.get("", response_model=IPGsResponse, responses=responses)
 async def list_ipgs(
     trace_id=Depends(get_trace_id),
     pagination=Depends(pagination),
@@ -180,7 +180,7 @@ async def list_ipgs(
 
 
 # update ipg
-@router.put("/{id}", response_model=IPGResponse)
+@router.put("/{id}", response_model=IPGResponse, responses=responses)
 async def update_ipg(
     request: IPGRequest,
     id: int = Path(..., description="IPG ID", example=1),
@@ -201,7 +201,7 @@ async def update_ipg(
 
 
 # delete ipg
-@router.delete("/{id}", response_model=Response)
+@router.delete("/{id}", response_model=Response, responses=responses)
 async def delete_ipg(
     id: int = Path(..., description="IPG ID", example=1),
     current_user: Annotated = Security(
@@ -220,7 +220,7 @@ async def delete_ipg(
 
 
 # get ipg
-@router.get("/{id}", response_model=IPGResponse)
+@router.get("/{id}", response_model=IPGResponse, responses=responses)
 async def get_ipg(
     id: int = Path(..., description="IPG ID", example=1),
     trace_id=Depends(get_trace_id),
@@ -235,7 +235,7 @@ async def get_ipg(
 
 
 # list and get ipg transactions
-@router.get("/{ipg_id}/transactions", response_model=IPGTransactionsResponse)
+@router.get("/{ipg_id}/transactions", response_model=IPGTransactionsResponse, responses=responses)
 async def list_ipg_transactions(
     ipg_id: int = Path(..., description="IPG ID", example=1),
     trace_id=Depends(get_trace_id),
