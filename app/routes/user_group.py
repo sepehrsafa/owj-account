@@ -1,7 +1,7 @@
 from typing import Annotated
 from app.models.user import UserAccount
 from app.models.user_group import UserGroup
-from app.schemas.general import Response
+from owjcommon.schemas import Response
 from app.schemas.user_group import (
     AddUserToGroupRequest,
     CreateGroupRequest,

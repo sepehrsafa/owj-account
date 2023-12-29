@@ -57,12 +57,12 @@ class BaseGroup(OwjBaseModel):
         description="List of permissions assigned to the group",
         example=[UserPermission.USER_GROUP_ADD_USER, UserPermission.USER_GROUP_READ],
     )
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
 
 
 class Group(BaseGroup):
-    users: list[UserAccount]
+    users: list[UserAccount] = Field(
+        ..., description="List of users assigned to the group"
+    )
 
 
 class MyGroupsResponse(Response):

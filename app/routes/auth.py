@@ -15,7 +15,7 @@ from app.schemas.auth import (
     UsernamePasswordLoginRequest,
     RefreshTokenRequest,
 )
-from app.schemas.general import Response
+from owjcommon.schemas import Response
 from app.services.auth.utils import get_current_active_user
 from owjcommon.exceptions import OWJException
 from owjcommon.response import responses

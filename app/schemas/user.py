@@ -37,8 +37,10 @@ class UserAccountCreateRequest(PhoneNumber):
 
 
 class UserAccount(PhoneNumber, OwjBaseModel):
-    uuid: UUID4
-    type: UserTypeChoices
+    uuid: UUID4 = Field(..., description="UUID of the user account")
+    type: UserTypeChoices = Field(
+        ..., example=UserTypeChoices.REGULAR_USER, description="Type of the user"
+    )
     email: Optional[EmailStr] = Field(None, example="sepehr@owj.app")
     first_name: Optional[str] = Field(None, example="Sepehr")
     last_name: Optional[str] = Field(None, example="Safa")
@@ -94,21 +96,25 @@ class UserAccountUpdateRequestByAgency(UserAccountUpdateRequest, PhoneNumber):
 
 
 class UserAccountMe(UserAccountFull):
-    wallets: list[Wallet]
-    business: Optional[BusinessAccount] = None
-    permissions: list[str]
+    wallets: list[Wallet] = Field(..., description="List of wallets")
+    business: Optional[BusinessAccount] = Field(
+        None, description="Business account of the user"
+    )
+    permissions: list[str] = Field(
+        ..., description="List of permissions assigned to the user"
+    )
 
 
 class UserAccountMeResponse(Response):
-    data: UserAccountMe
+    data: UserAccountMe = Field(..., description="User account data")
 
 
 class UserAccountResponse(Response):
-    data: UserAccountFull
+    data: UserAccountFull = Field(..., description="User account data")
 
 
 class UserAccountsResponse(PaginatedResult):
-    items: list[UserAccountFull]
+    items: list[UserAccountFull] = Field(..., description="List of user accounts")
 
 
 class UserAccountFilters(Filters):

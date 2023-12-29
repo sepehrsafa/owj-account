@@ -6,7 +6,7 @@ from app.config import settings
 from owjcommon.enums import UserPermission, UserTypeChoices
 from owjcommon.validators import is_valid_email, is_valid_phone_number
 
-from .general import Password, Response
+from owjcommon.schemas import Password, Response
 
 
 class TokenResponse(Response):
@@ -83,7 +83,7 @@ class OTPRequest(BaseModel):
 
 
 class OTPLoginRequest(OTPRequest):
-    otp: str
+    otp: str = Field(..., description="One time password (OTP)")
 
     @validator("otp", pre=True, always=True)
     def validate_otp(cls, v):
@@ -93,7 +93,7 @@ class OTPLoginRequest(OTPRequest):
 
 
 class SetPasswordRequest(Password):
-    confirm_password: str
+    confirm_password: str = Field(..., description="Confirm password")
 
     @validator("confirm_password", pre=True, always=True)
     def validate_confirm_password(cls, v, values):
