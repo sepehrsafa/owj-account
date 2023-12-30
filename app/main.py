@@ -78,6 +78,7 @@ register_tortoise(
 )
 
 
+
 @app.exception_handler(OWJException)
 async def _owj_exception_handler(request, exc):
     return await owj_exception_handler(request, exc)
