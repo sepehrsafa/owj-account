@@ -48,6 +48,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 BASE_PREFIX = "/api/account/v1"
 
 app.include_router(user_router, prefix=BASE_PREFIX + "/user")
