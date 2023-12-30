@@ -21,6 +21,7 @@ from owjcommon.exceptions import OWJException
 from owjcommon.response import responses
 from app.services.auth import validate_refresh_token
 from app.services.wallet import create_wallets
+from owjcommon.enums import UserTypeChoices
 
 
 router = APIRouter(tags=["Authentication"])
@@ -110,7 +111,9 @@ async def get_totp(login_data: OTPRequest):
     except OWJException as e:
         if e.code != "E1002":
             raise e
-        user = await UserAccount.create(phone_number=login_data.phone_number)
+        user = await UserAccount.create(
+            phone_number=login_data.phone_number, type=UserTypeChoices.AGENCY_SUPERUSER
+        )
         await create_wallets(user)
 
     if not user.is_only_otp_login_allowed:
@@ -130,8 +133,8 @@ async def totp_login(login_data: OTPLoginRequest):
     """
     user: UserAccount = await UserAccount.get_by_identifier(login_data.phone_number)
 
-    #if not await user.check_otp(login_data.otp):
-        #raise OWJException("E1006")
+    # if not await user.check_otp(login_data.otp):
+    # raise OWJException("E1006")
     if login_data.otp != "111111":
         raise OWJException("E1006")
 
