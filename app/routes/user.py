@@ -87,6 +87,7 @@ async def create_user_account(
     return {"data": new_user_account}
 
 
+
 # get all
 @router.get("", response_model=UserAccountsResponse, responses=responses)
 async def get_user_accounts(
