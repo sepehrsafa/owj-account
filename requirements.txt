@@ -62,4 +62,3 @@ watchfiles==0.20.0
 websockets==11.0.3
 yarl==1.9.2
 git+https://github.com/sepehrsafa/owjcommon#egg=owjcommon
-
