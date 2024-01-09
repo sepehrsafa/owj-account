@@ -55,7 +55,7 @@ async def wallet_topoff(current_user, requested_for_user, request: WalletTopOffR
         amount=request.amount,
         currency=request.currency,
         note=request.note,
-        reference=request.reference,
+        reference_id=request.reference,
         wallet=wallet,
     )
 

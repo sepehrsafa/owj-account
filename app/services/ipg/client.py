@@ -19,5 +19,5 @@ class Client(ABC):
         pass
 
     @abstractmethod
-    def verify(self):
+    def verify(self, transaction):
         pass

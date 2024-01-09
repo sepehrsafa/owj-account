@@ -1,27 +1,8 @@
 from time import sleep
-from typing import Annotated
+from typing import Annotated, Optional
 
-from app.enums import IPGType, TransactionStatus
-from app.models import IPG as IPGModel
-from app.models import IPGTransaction as IPGTransactionModel
-from app.models import Wallet as WalletModel
-from app.models import WalletTransaction as WalletTransactionModel
-from app.schemas import (
-    IPGRequest,
-    IPGResponse,
-    IPGsResponse,
-    IPGTransactionResponse,
-    IPGTransactionsResponse,
-    IPGTransactionFilter,
-    IPGUpdateRequest,
-    IPGFilter,
-)
-from app.services.auth.utils import check_user_set, get_current_active_user
-from app.services.ipg import get_ipg_client
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, Security
+from fastapi import APIRouter, Depends, Form, HTTPException, Path, Query, Security
 from fastapi.responses import RedirectResponse
-from tortoise.transactions import in_transaction
-
 from owjcommon.dependencies import get_trace_id, pagination
 from owjcommon.enums import UserPermission, UserSet
 from owjcommon.exceptions import OWJException
@@ -29,6 +10,25 @@ from owjcommon.logger import TraceLogger
 from owjcommon.models import get_paginated_results_with_filter
 from owjcommon.response import responses
 from owjcommon.schemas import Response
+from tortoise.transactions import in_transaction
+
+from app.enums import IPGType, TransactionStatus
+from app.models import IPG as IPGModel
+from app.models import IPGTransaction as IPGTransactionModel
+from app.models import Wallet as WalletModel
+from app.models import WalletTransaction as WalletTransactionModel
+from app.schemas import (
+    IPGFilter,
+    IPGRequest,
+    IPGResponse,
+    IPGsResponse,
+    IPGTransactionFilter,
+    IPGTransactionResponse,
+    IPGTransactionsResponse,
+    IPGUpdateRequest,
+)
+from app.services.auth.utils import check_user_set, get_current_active_user
+from app.services.ipg import get_ipg_client
 
 logger = TraceLogger(__name__)
 
@@ -101,8 +101,89 @@ async def nextpay_callback(
     return RedirectResponse(url="https://ptc7.ir", status_code=302)
 
 
+@router.post("/callback/sep")
+async def sep_callback(
+    MID: Optional[str] = Form(None),
+    TerminalId: Optional[str] = Form(None),
+    RefNum: Optional[str] = Form(None),
+    ResNum: Optional[str] = Form(None),
+    State: Optional[str] = Form(None),
+    TraceNo: Optional[str] = Form(None),
+    Amount: Optional[str] = Form(None),
+    Wage: Optional[str] = Form(None),
+    Rrn: Optional[str] = Form(None),
+    SecurePan: Optional[str] = Form(None),
+    Status: Optional[str] = Form(None),
+    Token: Optional[str] = Form(None),
+    HashedCardNumber: Optional[str] = Form(None),
+):
+    ipg_client = get_ipg_client(IPGType.SEP)
+
+    async with in_transaction():
+        transaction = (
+            await IPGTransactionModel.filter(pk=ResNum, token=Token)
+            .select_for_update()
+            .first()
+        )
+
+        if transaction is None:
+            return OWJException("E1025")
+        if transaction.status != TransactionStatus.PENDING:
+            return OWJException("E1027")
+
+        transaction.ipg_reference_id = RefNum
+        transaction.trace_number = TraceNo
+        transaction.shaparak_reference_id = Rrn
+        transaction.card_number = SecurePan
+
+        if Status == "1":
+            transaction.status = TransactionStatus.CANCELED
+        elif Status != "2" or RefNum is None:
+            transaction.status = TransactionStatus.FAILED
+        else:
+            ipg = await transaction.ipg
+
+            ipg_client = ipg_client(
+                terminal_id=ipg.terminal_id,
+                merchant_id=ipg.merchant_id,
+                merchant_key=ipg.merchant_key,
+                password=ipg.password,
+                callback_url=ipg.callback_url,
+                url=ipg.url,
+                currency=ipg.currency,
+            )
+
+            await ipg_client.verify(transaction)
+
+            if transaction.status == TransactionStatus.SUCCESS:
+                wallet = (
+                    await WalletModel.filter(id=transaction.wallet_id)
+                    .select_for_update()
+                    .first()
+                )
+
+                await WalletTransactionModel.create(
+                    wallet=wallet,
+                    amount=transaction.amount,
+                    currency=transaction.currency,
+                    preformed_by=await transaction.user,
+                    note=transaction.note,
+                    reference=transaction.reference_id,
+                    balance=wallet.amount + transaction.amount,
+                )
+
+                wallet.amount = wallet.amount + transaction.amount
+                await wallet.save()
+
+        await transaction.save()
+
+    return RedirectResponse(url="https://ptc7.ir", status_code=302)
+
+
 # get all ipg transactions
-@router.get("/transactions", response_model=IPGTransactionsResponse, responses=responses)
+@router.get(
+    "/transactions", response_model=IPGTransactionsResponse, responses=responses
+)
 async def list_all_ipgs_transactions(
     trace_id=Depends(get_trace_id),
     pagination=Depends(pagination),
@@ -122,7 +203,9 @@ async def list_all_ipgs_transactions(
     return transactions
 
 
-@router.get("/transactions/{id}", response_model=IPGTransactionResponse, responses=responses)
+@router.get(
+    "/transactions/{id}", response_model=IPGTransactionResponse, responses=responses
+)
 async def get_ipg_transaction(
     id: int = Path(
         ...,
@@ -235,7 +318,11 @@ async def get_ipg(
 
 
 # list and get ipg transactions
-@router.get("/{ipg_id}/transactions", response_model=IPGTransactionsResponse, responses=responses)
+@router.get(
+    "/{ipg_id}/transactions",
+    response_model=IPGTransactionsResponse,
+    responses=responses,
+)
 async def list_ipg_transactions(
     ipg_id: int = Path(..., description="IPG ID", example=1),
     trace_id=Depends(get_trace_id),

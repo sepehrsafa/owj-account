@@ -7,10 +7,10 @@ from app.enums import TransactionStatus
 from decimal import Decimal
 
 
-class NextPayClient(Client):
-    TOKEN_URL = "/nx/gateway/token"
-    VERIFY_URL = "/nx/gateway/verify"
-    REDIRECT_URL = "/nx/gateway/payment"
+class SepClient(Client):
+    TOKEN_URL = "/onlinepg/onlinepg"
+    VERIFY_URL = "/verifyTxnRandomSessionkey/ipg/VerifyTransaction"
+    REDIRECT_URL = "/OnlinePG/SendToken"
 
     def __init__(
         self,
@@ -31,70 +31,62 @@ class NextPayClient(Client):
             url,
             currency,
         )
-        self.headers = {
-            "User-Agent": "PostmanRuntime/7.26.8",
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
 
     def pay(
         self, amount, currency, phone_number, order_id, reference=None, description=None
     ):
         request_data = {
-            "api_key": self.merchant_key,
-            "order_id": order_id,
-            "amount": amount,
-            "callback_uri": self.callback_url,
-            "currency": currency,
-            "customer_phone": phone_number,
-            "custom_json_fields": {
-                "description": description,
-                "reference": reference,
-            },
-            "payer_desc": description,
+            "action": "token",
+            "TerminalId": self.terminal_id,
+            "Amount": amount,
+            "ResNum": order_id,
+            "ResNum1": str(reference),
+            "ResNum2": str(description),
+            "ResNum3": phone_number,
+            "RedirectUrl": self.callback_url,
+            "CellNumber": phone_number,
         }
+        print(request_data)
 
         response = requests.post(
             url=self.url + self.TOKEN_URL,
             data=request_data,
-            headers=self.headers,
         )
 
         response = response.json()
 
         return WalletTopOffResponse(
             type="redirect",
-            url=self.url + self.REDIRECT_URL + "/" + response["trans_id"],
-            token=response["trans_id"],
+            url=self.url + self.REDIRECT_URL + "?token=" + response["token"],
+            token=response["token"],
         )
 
     async def verify(self, transaction: IPGTransactionModel):
         request_data = {
-            "api_key": self.merchant_key,
-            "trans_id": transaction.token,
-            "amount": transaction.amount,
-            "currency": transaction.currency,
+            "RefNum": transaction.ipg_reference_id,
+            "TerminalNumber": self.terminal_id,
         }
 
         response = requests.post(
             url=self.url + self.VERIFY_URL,
-            data=request_data,
-            headers=self.headers,
+            json=request_data,
         )
+        print(response.text)
 
         response = response.json()
 
-        if response["code"] != 0:
+        if response["ResultCode"] != 0:
             transaction.status = TransactionStatus.FAILED
-            transaction.card_number = response["card_holder"]
-            transaction.shaparak_reference_id = response["Shaparak_Ref_Id"]
+            transaction.card_number = response["TransactionDetail"]["MaskedPan"]
+            transaction.shaparak_reference_id = response["TransactionDetail"]["RRN"]
             return
 
         discrepancy = False
 
-        if Decimal(response["amount"]) != transaction.amount:
-            discrepancy = True
-
-        if response["order_id"] != str(transaction.pk):
+        if (
+            Decimal(response["TransactionDetail"]["AffectiveAmount"])
+            != transaction.amount
+        ):
             discrepancy = True
 
         if discrepancy:
@@ -102,6 +94,6 @@ class NextPayClient(Client):
             return
 
         transaction.status = TransactionStatus.SUCCESS
-        transaction.card_number = response["card_holder"]
-        transaction.shaparak_reference_id = response["Shaparak_Ref_Id"]
+        transaction.card_number = response["TransactionDetail"]["MaskedPan"]
+        transaction.shaparak_reference_id = response["TransactionDetail"]["RRN"]
         return
